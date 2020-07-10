@@ -1,0 +1,181 @@
+import ddf.minim.*;
+import ddf.minim.signals.*;
+import ddf.minim.analysis.*;
+
+Minim minim;
+AudioPlayer mySound;
+FFT  fft;
+
+float a;
+float b;
+float x;
+float y;
+float ran_x;
+float ran_y;
+int rnd_xy;
+int rnd_pm;
+float t_x;
+float t_y;
+PFont Verdana;
+PImage img;
+int[] colours = { #4a2825, #4a4325, #474a25, #3b4a25, #294a25, #254a3b, #25464a, #25374a, #2e254a, #4a2541 };
+String set_colour;
+float maxheight;
+String title;
+int t;
+int tc;
+int q;
+
+
+void setup () {
+  fullScreen(P3D);
+  noCursor();
+  smooth();
+  frameRate(24);
+  strokeWeight(4);
+  Verdana = createFont("Verdana4.otf", 92);
+  textFont(Verdana);
+  title = "Lush Butter (Original Mix)";
+  q = 54;
+  
+  img = loadImage("bg_matched.png");
+  background(img);
+  
+  t_x = 1900;
+  t_y = 500;
+  
+  rectMode(CORNER);
+
+  minim = new Minim(this);
+  mySound = minim.loadFile("mastering_lush butter.wav", 1024);    
+  mySound.setGain(-30);
+  fft = new FFT( mySound.bufferSize(), mySound.sampleRate() );
+}
+
+void mouseReleased()
+{
+  if ( mySound.isPlaying() )
+  {
+    mySound.pause();
+  }
+  else
+  {    
+    mySound.play();
+  }
+}
+
+void draw () {
+
+  //saveFrame("output/BTH_#####.png");
+  //println(frameRate);
+  
+  rnd_xy = int(random(1,16));
+  rnd_pm = int(random(1,11));
+  int index = int(random(colours.length));
+  
+
+  fill(#18131c, 150);  
+  background(img);
+  rect(0, 0, width, height);
+  //translate(width/2, height/2);
+  
+  fft.forward( mySound.mix );
+  strokeWeight(8);
+  for(int i = 0; i < fft.specSize(); i++)
+  {
+    // draw the line for frequency band i, scaling it up a bit so we can see it
+    stroke(#333333, 255);
+    if(fft.getBand(i)*40>600) {
+      maxheight = 600;
+    } else {
+      maxheight = fft.getBand(i)*40;
+    }
+    line( i*10, height, i*10, height - maxheight);
+  }
+  
+  strokeWeight(4);
+  
+  for (int i = 0; i < mySound.bufferSize() - 1; i++) {
+
+    stroke(#ff8c00, 10);
+    line(1+b+((mySound.left.get(i)+1)*1000), 2160, 0, 0);
+
+    stroke(#db46a7, 10);
+    line(3800-(a/a)-((mySound.right.get(i)+1)*1600), 2160, 3840, 0);
+
+    noStroke();
+    fill(#ffffff, 255);    
+    ellipse(ran_x+((mySound.left.get(i)+1)+random(43,799))*10-550, ran_y+((mySound.right.get(i)+1)+random(54,622))*10-600, 2, 2);
+    
+    
+    if(rnd_xy <= 5) {
+      if(mySound.mix.get(i)>0) {
+        if(rnd_pm <= 5) {
+          if(t_x>3340) {
+            t_x = random(3260,3300);
+          } else if(t_x<2) {
+            t_x = random(40,80);
+          } else {
+            t_x -= mySound.mix.get(i)/10*8;
+          }
+        } else {
+          if(t_x>3340) {
+            t_x = random(3260,3300);
+          } else if(t_x<20) {
+            t_x = random(40,80);
+          } else {
+            t_x += mySound.mix.get(i)/10*8;
+          }
+        }
+      }
+    } else {
+      if(mySound.mix.get(i)>0) {
+        if(rnd_pm <= 5) {
+          if(t_y>2140) {
+            t_y = random(2060,2140);
+          } else if(t_y<20) {
+            t_y = random(40,80);
+          } else {
+            t_y -= mySound.mix.get(i)/10*8;
+          }
+        } else {
+          if(t_y>2140) {
+            t_y = random(2060,2140);
+          } else if(t_y<20) {
+            t_y = random(40,80);
+          } else {
+            t_y += mySound.mix.get(i)/10*8;
+          }
+        }
+      }
+    }
+    
+    textSize(92);
+    fill(colours[index], 255);
+    text("Chief Thomson",t_x,t_y);
+    
+    t = int(random(0,26));
+    int r = int(random(1,4));
+    int s = int(random(2,255));
+    if(r==1) {
+      tc = #111111;
+    } else if (r==2) {
+      tc = #333333;
+    } else if (r==3) {
+      tc = #777777;
+    } else {
+      tc = #ffffff;
+    }
+    fill(tc,s);
+    textSize(q);
+    text(title.charAt(t),570+((t+1)*43),880); //24 max
+    
+    q = int(random(54,74));
+        
+  } 
+
+  a += random(0.08, 0.992);
+  //a += 0.014;
+  b += random(0.05, 0.898);
+  //b += 0.26;
+}
