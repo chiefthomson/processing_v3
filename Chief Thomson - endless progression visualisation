@@ -1,0 +1,275 @@
+import ddf.minim.*;
+import ddf.minim.signals.*;
+import ddf.minim.analysis.*;
+
+Minim minim;
+AudioPlayer mySound;
+FFT  fft;
+
+int rnd_vw;
+int rnd_xy;
+int rnd_pm;
+int rnd_pm2;
+float t_v;
+float t_w;
+float t_x;
+float t_y;
+float a;
+float b;
+float threshold;
+float threshold2;
+int sw;
+int m;
+int song_tempo;
+float advance;
+float x_new;
+int over_th;
+
+float n4;
+float n6;
+
+void setup () {
+  fullScreen(P3D);
+  noCursor();
+  smooth();
+  frameRate(24);
+  strokeWeight(5);
+  fill(#000000, 255);
+  rect(0, 0, width, height);
+  threshold = 0.5;
+  threshold2 = 0.65;
+  
+  song_tempo = 124;
+
+  t_v = 800;
+  t_w = 1999;
+  t_x = 1920;
+  t_y = 1080;
+  
+  x_new = width/2;
+  
+
+  minim = new Minim(this);
+  mySound = minim.loadFile("CT - endless progression.wav", 512);    
+  mySound.setGain(-30);
+  //mySound.loop();
+  fft = new FFT( mySound.bufferSize(), mySound.sampleRate() );
+}
+
+void mouseReleased()
+{
+  if ( mySound.isPlaying() )
+  {
+    mySound.pause();
+  }
+  else
+  {    
+    mySound.play();
+  }
+}
+
+void draw () {
+
+  //fill(#18131c, 150);  
+  //rect(0, 0, width, height);
+
+  rnd_xy = int(random(1, 3));
+  rnd_pm = int(random(1, 3));
+
+  for (int i = 0; i < mySound.bufferSize() - 1; i++) {
+    
+    float angle = sin(i+n4)* 2;
+ 
+    float x3 = sin(radians(i))*(500/angle);
+    float y3 = cos(radians(i))*(500/angle);
+ 
+    strokeWeight(0);
+    fill ( #000000, 60); //wt
+    ellipse(x3+width/2, y3+height/2, mySound.left.get(i)*20, mySound.left.get(i)*10);
+ 
+    
+    fill( #000000 , 70); //wt
+    rect(x3+width/2, y3+height/2, mySound.right.get(i)*10, mySound.right.get(i)*20);
+    
+
+    if (rnd_xy == 1) {
+      if (mySound.mix.get(i)>0) {
+        if (rnd_pm == 1) {
+          if (t_x>3340) {
+            t_x = random(3260, 3300);
+          } else if (t_x<20) {
+            t_x = random(40, 80);
+          } else {
+            if (mySound.mix.get(i)>threshold) {
+              t_x -= mySound.mix.get(i)*6;
+            }
+          }
+        } else {
+          if (t_x>3340) {
+            t_x = random(3260, 3300);
+          } else if (t_x<20) {
+            t_x = random(40, 80);
+          } else {
+            if (mySound.mix.get(i)>threshold) {
+              t_x += mySound.mix.get(i)*6;
+            }
+          }
+        }
+      }
+    } else {
+      if (mySound.mix.get(i)>0) {
+        if (rnd_pm == 1) {
+          if (t_y>2140) {
+            t_y = random(2060, 2140);
+          } else if (t_y<20) {
+            t_y = random(40, 80);
+          } else {
+            if (mySound.mix.get(i)>threshold) {
+              t_y -= mySound.mix.get(i)*6;
+            }
+          }
+        } else {
+          if (t_y>2140) {
+            t_y = random(2060, 2140);
+          } else if (t_y<20) {
+            t_y = random(40, 80);
+          } else {
+            if (mySound.mix.get(i)>threshold) {
+              t_y += mySound.mix.get(i)*6;
+            }
+          }
+        }
+      }
+    }
+
+    stroke(random(255), random(255), random(255), 180);
+    if (mySound.mix.get(i)>0 && mySound.mix.get(i)<0.1) {
+      sw=5;
+    } else if (mySound.mix.get(i)>0.1 && mySound.mix.get(i)<0.2) {
+      sw=8;
+    } else if (mySound.mix.get(i)>0.2 && mySound.mix.get(i)<0.3) {
+      sw=11;
+    } else if (mySound.mix.get(i)>0.3 && mySound.mix.get(i)<0.4) {
+      sw=15;
+    } else if (mySound.mix.get(i)>0.4 && mySound.mix.get(i)<0.5) {
+      sw=19;
+    } else if (mySound.mix.get(i)>0.5 && mySound.mix.get(i)<0.6) {
+      sw=24;
+    } else if (mySound.mix.get(i)>0.6 && mySound.mix.get(i)<0.7) {
+      sw=29;
+    } else if (mySound.mix.get(i)>0.7 && mySound.mix.get(i)<0.8) {
+      sw=35;
+    } else if (mySound.mix.get(i)>0.8 && mySound.mix.get(i)<0.9) {
+      sw=41;
+    } else {
+      sw=50;
+    }
+    strokeWeight(sw);
+    line(t_x+2, t_y+2, t_x, t_y);
+        
+    rnd_vw = int(random(1, 3));
+    rnd_pm2 = int(random(1, 3));
+
+    if (rnd_vw == 1) {
+      if (mySound.mix.get(i)>0) {
+        if (rnd_pm2 == 1) {
+          if (t_v>3340) {
+            t_v = random(3260, 3300);
+          } else if (t_v<20) {
+            t_v = random(40, 80);
+          } else {
+            if (mySound.mix.get(i)>threshold2) {
+              t_v -= mySound.mix.get(i)*50;
+            }
+          }
+        } else {
+          if (t_v>3340) {
+            t_v = random(3260, 3300);
+          } else if (t_v<20) {
+            t_v = random(40, 80);
+          } else {
+            if (mySound.mix.get(i)>threshold2) {
+              t_v += mySound.mix.get(i)*50;
+            }
+          }
+        }
+      }
+    } else {
+      if (mySound.mix.get(i)>0) {
+        if (rnd_pm2 == 1) {
+          if (t_w>2140) {
+            t_w = random(2060, 2140);
+          } else if (t_w<20) {
+            t_w = random(40, 80);
+          } else {
+            if (mySound.mix.get(i)>threshold2) {
+              t_w -= mySound.mix.get(i)*50;
+            }
+          }
+        } else {
+          if (t_w>2140) {
+            t_w = random(2060, 2140);
+          } else if (t_w<20) {
+            t_w = random(40, 80);
+          } else {
+            if (mySound.mix.get(i)>threshold2) {
+              t_w += mySound.mix.get(i)*50;
+            }
+          }
+        }
+      }
+    }
+    
+    strokeWeight(20);
+    stroke(#09d8db, 99);
+    //line(t_v, t_w, t_v+200, t_w+200);
+    point(t_v,t_w);
+    
+    if(mySound.mix.get(i)>0.94) {
+      //if(millis() - m >= 8200) {
+        fill( random(155), random(155), random(155), random(155));
+        noStroke();
+        rect(random(-500,2976), random(-200,1453), random(598,2689), random(254,1623));
+        //m = millis();
+      //}
+    }
+    
+  }
+  
+  
+  strokeWeight(0);
+  rectMode(CORNER);
+  fill( #000000, 255);
+  
+  fft.forward(mySound.mix);
+      
+  for(int j = 0; j < fft.specSize(); j++)
+  {
+    
+    // draw the line for frequency band i, scaling it up a bit so we can see it
+    //stroke(#000000, 255);
+    //line( j*10, height, j*10, height - fft.getBand(j)*8);
+    if(fft.getBand(1)>60) {
+      over_th = 1;
+      if(over_th == 1 && j == 1) {
+        if(advance>2160) {
+          advance=0;
+          x_new = random(10,3820);
+        } else {
+          //advance += fft.getBand(10)/100;
+          advance += int(fft.getBand(1));
+        }
+        over_th=0;
+      }
+    }
+    rect(x_new,0,50,advance);
+  }
+  
+  a += random(0.08, 0.992);
+  //a += 0.014;
+  b += random(0.05, 0.898);
+  //b += 0.26;
+  
+  n4 += 0.008;
+  n6 += 0.04;
+}
